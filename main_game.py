@@ -33,7 +33,7 @@ black=(0,0,0)
 score=0
 
 apple_image=pygame.image.load('apple.jpg')
-snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2-10),int(display_height/2)],[int(display_width/2-20),int(display_height/2)]]
+snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2-10),int(display_height/2)],[int(display_width/2-20),int(display_height/2)],[int(display_width/2-30),int(display_height/2)],[int(display_width/2-40),int(display_height/2)]]
 snake_head=list(snake_position[0])
 
 apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
@@ -42,7 +42,17 @@ apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
 print(snake_position)
 
 def move(snake_position):
-    global button_direction, apple_position,score
+    
+    '''
+    
+    0 means LEFT
+    1 means RIGHT
+    3 means UP
+    2 means DOWN
+    
+    '''
+    
+    global button_direction, apple_position,score,crashed
     for event in pygame.event.get():
         if event.type==pygame.KEYDOWN:
             prev_button=button_direction
@@ -56,7 +66,9 @@ def move(snake_position):
                 button_direction=2
             else:
                 button_direction=button_direction
-          
+            break
+        if event.type==pygame.QUIT:
+            crashed=True
     snake_head=list(snake_position[0])
     if button_direction==0:
         snake_head[0]-=10
@@ -68,17 +80,18 @@ def move(snake_position):
         snake_head[1]-=10
     else:
         pass
-    
-    
+
+    absorbedApple=collision_with_apple(snake_position)
     snake_position.insert(0,snake_head)
-    snake_position.pop()
-    
-    
-    collision_with_apple(apple_position,snake_position,score)
+    if not absorbedApple:
+        snake_position.pop()
+        
+
+
         
     collision_with_boundaries(snake_position[0]) 
     collision_with_self(snake_position)
-        
+            
     
     
 
@@ -108,18 +121,18 @@ def collision_with_self(snake_position):
     else:
         return 0
 
-def absorb_apple(apple_position,score,snake_position):
-    print('absorb')
-    score+=1
-    apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
-    while apple_position not in snake_position:
-        apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
-    return apple_position,score
 
 
-def collision_with_apple(apple_position,snake_position,score):
+def collision_with_apple(snake_position):
+    global apple_position,score
     if snake_position[0]==apple_position:
-        apple_position,score=absorb_apple(apple_position,score,snake_position)
+        print('absorb')
+        score+=1
+        print('score ',score)
+        apple_position=[random.randrange(1,49)*10,random.randrange(1,49)*10]
+        while apple_position in snake_position:
+            apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
+        return True
         
 
 
