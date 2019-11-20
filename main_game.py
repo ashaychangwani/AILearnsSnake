@@ -10,36 +10,7 @@ import pygame
 import random
 import time
 
-pygame.init()
 
-display_width=500
-display_height=500
-display= pygame.display.set_mode((display_width,display_height))
-window_color=(200,200,200)
-display.fill(window_color)
-pygame.display.update()
-
-
-
-clock=pygame.time.Clock()
-
-button_direction=1
-
-crashed=False
-
-red=(255,0,0)
-black=(0,0,0)
-
-score=0
-
-apple_image=pygame.image.load('apple.jpg')
-snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2-10),int(display_height/2)],[int(display_width/2-20),int(display_height/2)],[int(display_width/2-30),int(display_height/2)],[int(display_width/2-40),int(display_height/2)]]
-snake_head=list(snake_position[0])
-
-apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
-
-
-print(snake_position)
 
 def move(snake_position):
     
@@ -126,22 +97,21 @@ def collision_with_self(snake_position):
 def collision_with_apple(snake_position):
     global apple_position,score
     if snake_position[0]==apple_position:
-        print('absorb')
         score+=1
-        print('score ',score)
         apple_position=[random.randrange(1,49)*10,random.randrange(1,49)*10]
         while apple_position in snake_position:
             apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
         return True
         
 
-
-
-if __name__ == "__main__":    
+def playGame():
+    global score,crashed
     
     while crashed is not True:    
         
-        clock.tick(10)
+        clock.tick()
+        #clock.tick(20)
+        time.sleep(0.2)
         move(snake_position)
         display_snake(snake_position)
         display_apple(display,apple_position,apple_image)
@@ -157,3 +127,41 @@ if __name__ == "__main__":
     pygame.display.update()
     time.sleep(2)
     pygame.quit()
+    return score
+
+
+pygame.init()
+
+display_width=500
+display_height=500
+display= pygame.display.set_mode((display_width,display_height))
+window_color=(200,200,200)
+display.fill(window_color)
+pygame.display.update()
+
+
+
+crashed=False
+
+clock=pygame.time.Clock()
+
+button_direction=1
+
+
+red=(255,0,0)
+black=(0,0,0)
+
+score=0
+
+apple_image=pygame.image.load('apple.png')
+apple_image=pygame.transform.scale(apple_image,(10,10))
+snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2-10),int(display_height/2)],[int(display_width/2-20),int(display_height/2)],[int(display_width/2-30),int(display_height/2)],[int(display_width/2-40),int(display_height/2)]]
+snake_head=list(snake_position[0])
+
+apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
+    
+    
+    
+Score=playGame()
+    
+print(score)
