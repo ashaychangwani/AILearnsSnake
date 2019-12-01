@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 """
 Created on Wed Nov 20 17:04:26 2019
@@ -12,10 +12,26 @@ import bisect, collections,random
 
 initPop=50
 inpNum=7
+mid=int((inpNum+2)/2)
+
+'''
+Inputs:
+    FrontBlocked
+    LeftBlocked
+    RightBlocked
+    GoalLeft
+    GoalRight
+    GoalFront
+    GoalBack
+
+Outputs:
+    TurnLeft
+    TurnRight
+    GoForward
+'''
 
 pop=list()
 temp=list()
-mid=int((inpNum+3)/2)
 
 
 def createInitPop(initPop=initPop):
@@ -25,9 +41,10 @@ def createInitPop(initPop=initPop):
         temp.append(np.resize(np.zeros(mid),[inpNum]))
         temp.append(np.resize(np.random.random(inpNum*mid) * 2 - 1,[inpNum,mid]))
         temp.append(np.resize(np.zeros(mid),[mid]))
-        temp.append(np.resize(np.random.random(3*mid) * 2 - 1,[mid,3]))
-        temp.append(np.resize(np.array(np.zeros(3)),[3]))
+        temp.append(np.resize(np.random.random(2*mid) * 2 - 1,[mid,2]))
+        temp.append(np.resize(np.array(np.zeros(2)),[2]))
         pop.append(temp)
+        
         
 
 
@@ -55,7 +72,7 @@ def flatten(weights):
 def crossOver(parent1, parent2):
     flatParent1=flatten(parent1)
     flatParent2=flatten(parent2)
-    crossOverPt=random.randint(0,(inpNum**2 + inpNum*mid + mid*3 + inpNum + mid + 3))
+    crossOverPt=random.randint(0,(inpNum**2 + inpNum*mid + mid*2 + inpNum + mid + 2))
     temp=flatParent1[:crossOverPt] + flatParent2[crossOverPt:]
     flatParent2=flatParent2[:crossOverPt] + flatParent1[crossOverPt:]
     flatParent1=temp
@@ -71,17 +88,17 @@ def restructure(parent1,flatParent1):
     counter=counter+inpNum
     parent1[2]=np.array(flatParent1[counter : counter + inpNum*mid]).reshape(inpNum,mid)
     counter=counter + inpNum*mid
-    parent1[3]=np.array(flatParent1[counter : counter + mid]).reshape(mid,)
+    parent1[2]=np.array(flatParent1[counter : counter + mid]).reshape(mid,)
     counter=counter + mid
-    parent1[4]=np.array(flatParent1[counter : counter + mid*3]).reshape(mid,3)
-    counter = counter + mid*3
-    parent1[5]=np.array(flatParent1[counter : counter + 3])
+    parent1[4]=np.array(flatParent1[counter : counter + mid*2]).reshape(mid,2)
+    counter = counter + mid*2
+    parent1[5]=np.array(flatParent1[counter : counter + 2])
     return parent1
     
 
 
 def mutation(parent):
-    mutationPt=random.randint(0,(inpNum**2 + inpNum*mid + mid*3 + inpNum + mid + 3))
+    mutationPt=random.randint(0,(inpNum**2 + inpNum*mid + mid*2 + inpNum + mid + 2))
     if (np.random.rand() >= 0.80):
         flatParent=flatten(parent)
         if (flatParent[mutationPt] != 0.0):
@@ -90,9 +107,12 @@ def mutation(parent):
     return parent
 
 zzz=[]
+
 def fitnessFn(chromosome):
     global zzz
     model=createModel(inpNum,chromosome)
+    print(model.predict(np.array(t).shape))
+    
 
 createInitPop(initPop)
 fitnessFn(pop[0])
