@@ -209,9 +209,9 @@ def move2(snake_position,decision):
     
     outputs: 
         
-        00/01 means forward
-        10 means left
-        11 means right
+        0 means left
+        1 means straight 
+        2 means right
     '''
     
     global button_direction, apple_position,score,crashed
@@ -233,10 +233,33 @@ def move2(snake_position,decision):
         if event.type==pygame.QUIT:
             crashed=True
     '''
+    
     prev_button=button_direction
-    if decision [0]==0:
+    if decision == 0:
+        if prev_button == 0:
+            button_direction = 2
+        elif prev_button == 1:
+            button_direction = 3
+        elif prev_button == 2:
+            button_direction = 1
+        elif prev_button == 3:
+            button_direction = 0
+    elif decision == 1:
         button_direction=prev_button
-    elif decision[0]==0 and decision[1]==1:
+    elif decision == 2:
+        if prev_button == 0:
+            button_direction = 3
+        elif prev_button == 1:
+            button_direction = 2
+        elif prev_button == 2:
+            button_direction = 0
+        elif prev_button == 3:
+            button_direction = 1
+
+
+    if decision [0]==0 and prev_button == 0:
+        button_direction=prev_button
+    elif decision[1]==1 and decision[0]==0:
         if prev_button == 0:
             button_direction=2
         elif prev_button == 1:
@@ -350,7 +373,7 @@ def playGame():
     return score
 
 
-def playGameAI(model):
+def playGameAI(weights):
     global score,crashed,snake_position,apple_position, display, apple_image
     
     while crashed is not True:    
@@ -363,7 +386,7 @@ def playGameAI(model):
         #print(snake_position,'\nFrontBlocked\t',param[0],'\nLeftBlocked\t',param[1],'\nRightBlocked\t',param[2],'\nGoalFront\t',param[3],'\nGoalBack\t',param[4],'\nGoalLeft\t',param[5],'\nGoalRight\t',param[6])
     
     
-        move2(snake_position,model.predict(param))
+        move2(snake_position,getOutput(weights,7,param))
         
         
         display_snake(snake_position)

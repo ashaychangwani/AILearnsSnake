@@ -8,11 +8,12 @@ Created on Wed Nov 20 17:04:26 2019
 from nn import *
 import numpy as np
 import bisect, collections,random
+from main_game import *
 
 
 initPop=50
 inpNum=7
-mid=int((inpNum+2)/2)
+mid=int((inpNum+3)/2)
 
 '''
 Inputs:
@@ -37,17 +38,10 @@ temp=list()
 def createInitPop(initPop=initPop):
     for _ in range (initPop):
         temp=[]
-        temp.append(np.resize(np.random.random(inpNum**2) * 2 - 1,[inpNum,inpNum]))
-        temp.append(np.resize(np.zeros(mid),[inpNum]))
         temp.append(np.resize(np.random.random(inpNum*mid) * 2 - 1,[inpNum,mid]))
-        temp.append(np.resize(np.zeros(mid),[mid]))
-        temp.append(np.resize(np.random.random(2*mid) * 2 - 1,[mid,2]))
-        temp.append(np.resize(np.array(np.zeros(2)),[2]))
+        temp.append(np.resize(np.random.random(2*mid) * 2 - 1,[mid,3]))
         pop.append(temp)
-        
-        
-
-
+    
 def cdf(weights):
     total=sum(weights)
     result=[]
@@ -57,17 +51,14 @@ def cdf(weights):
         result.append(cumsum/total)
     return result
 
-
 def choice(weights):
     cdf_vals=cdf(weights)
     x=random.random()
     idx=bisect.bisect(cdf_vals,x)
     return idx
 
-
 def flatten(weights):
     return [item for sublist in weights for item in sublist.flatten()]
-
 
 def crossOver(parent1, parent2):
     flatParent1=flatten(parent1)
@@ -82,23 +73,13 @@ def crossOver(parent1, parent2):
 
 def restructure(parent1,flatParent1):
     counter=0
-    parent1[0]=np.array(flatParent1[:inpNum**2]).reshape(inpNum,inpNum)
-    counter=inpNum**2
-    parent1[1]=np.array(flatParent1[counter : counter+inpNum]).reshape(inpNum,)
-    counter=counter+inpNum
-    parent1[2]=np.array(flatParent1[counter : counter + inpNum*mid]).reshape(inpNum,mid)
-    counter=counter + inpNum*mid
-    parent1[2]=np.array(flatParent1[counter : counter + mid]).reshape(mid,)
-    counter=counter + mid
-    parent1[4]=np.array(flatParent1[counter : counter + mid*2]).reshape(mid,2)
-    counter = counter + mid*2
-    parent1[5]=np.array(flatParent1[counter : counter + 2])
+    parent1[0]=np.array(flatParent1[:inpNum*mid]).reshape(inpNum,mid)
+    counter=inpNum*mid
+    parent1[1]=np.array(flatParent1[counter : counter+mid*3]).reshape(mid,3)
     return parent1
-    
-
 
 def mutation(parent):
-    mutationPt=random.randint(0,(inpNum**2 + inpNum*mid + mid*2 + inpNum + mid + 2))
+    mutationPt=random.randint(0,(inpNum*mid + mid*3))
     if (np.random.rand() >= 0.80):
         flatParent=flatten(parent)
         if (flatParent[mutationPt] != 0.0):
@@ -106,12 +87,11 @@ def mutation(parent):
             parent=restructure(parent,flatParent)
     return parent
 
-zzz=[]
-
 def fitnessFn(chromosome):
-    global zzz
-    model=createModel(inpNum,chromosome)
-    print(model.predict(np.array(t).shape))
+    return playGameAI(chromosome)
+
+def parentSelection():
+    
     
 
 createInitPop(initPop)
