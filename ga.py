@@ -11,10 +11,6 @@ import bisect, collections,random
 from main_game import *
 
 
-initPop=50
-inpNum=7
-mid=int((inpNum+3)/2)
-
 '''
 Inputs:
     FrontBlocked
@@ -31,8 +27,11 @@ Outputs:
     GoForward
 '''
 
+initPop=50
+inpNum=7
+mid=int((inpNum+3)/2)
+
 pop=list()
-temp=list()
 
 
 def createInitPop(initPop=initPop):
@@ -42,6 +41,7 @@ def createInitPop(initPop=initPop):
         temp.append(np.resize(np.random.random(2*mid) * 2 - 1,[mid,3]))
         pop.append(temp)
     
+    
 def cdf(weights):
     total=sum(weights)
     result=[]
@@ -50,6 +50,7 @@ def cdf(weights):
         cumsum+=w
         result.append(cumsum/total)
     return result
+
 
 def choice(weights):
     cdf_vals=cdf(weights)
@@ -91,9 +92,29 @@ def fitnessFn(chromosome):
     return playGameAI(chromosome)
 
 def parentSelection():
-    
+    print('Selecting parent')
+
+def elitism(pop,children):
+    children=sorted(pop)[-1*int(initPop/25):]
+    return children
     
 
+def offspringGeneration(pop):
+    global children
+    children=elitism(pop,children)
+    fitness=[]
+    for i in range (initPop):
+        fitness[i]=fitnessFn(pop[i])
+    while len(children)<initPop:
+        children.extend((crossOver(pop[choice(fitness)],pop[choice(fitness)])))
+    for i in range (initPop):
+        if random.random() >= 0.98:
+            children[i]=mutation(children[i])
+
+        
+        
+    
+children=list()
 createInitPop(initPop)
 fitnessFn(pop[0])
 

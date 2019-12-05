@@ -11,7 +11,7 @@ import random
 import time
 
 
-
+    
 def calcParams(snake_position,apple_position):
     '''
     FrontBlocked
@@ -333,10 +333,11 @@ def collision_with_self(snake_position):
 
 
 def collision_with_apple(snake_position):
-    global apple_position,score
+    global apple_position,score,counterSinceApple
     if snake_position[0]==apple_position:
         score+=1
         apple_position=[random.randrange(1,49)*10,random.randrange(1,49)*10]
+        counterSinceApple=0
         while apple_position in snake_position:
             apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
         return True
@@ -353,7 +354,7 @@ def playGame():
         move(snake_position)
         
         param=calcParams(snake_position, apple_position)
-        print(param)
+        
         #print(snake_position,'\nFrontBlocked\t',param[0],'\nLeftBlocked\t',param[1],'\nRightBlocked\t',param[2],'\nGoalFront\t',param[3],'\nGoalBack\t',param[4],'\nGoalLeft\t',param[5],'\nGoalRight\t',param[6])
     
         display_snake(snake_position)
@@ -374,9 +375,9 @@ def playGame():
 
 
 def playGameAI(weights):
-    global score,crashed,snake_position,apple_position, display, apple_image
+    global score,crashed,snake_position,apple_position, display, apple_image, counterSinceApple
     
-    while crashed is not True:    
+    while crashed is not True and counterSinceApple <= 100:    
         
         #clock.tick()
         clock.tick(40)
@@ -405,7 +406,6 @@ def playGameAI(weights):
     pygame.quit()
     return score
 
-
 pygame.init()
 
 display_width=500
@@ -415,7 +415,7 @@ window_color=(200,200,200)
 display.fill(window_color)
 pygame.display.update()
 
-
+counterSinceApple=0
 
 crashed=False
 
@@ -433,13 +433,12 @@ param=[]
 
 apple_image=pygame.image.load('apple.png')
 apple_image=pygame.transform.scale(apple_image,(10,10))
-snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2-10),int(display_height/2)],[int(display_width/2-20),int(display_height/2)],[int(display_width/2-30),int(display_height/2)],[int(display_width/2-40),int(display_height/2)]]
+snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2+10),int(display_height/2)],[int(display_width/2+20),int(display_height/2)],[int(display_width/2+30),int(display_height/2)],[int(display_width/2+40),int(display_height/2)]]
 snake_head=list(snake_position[0])
 
 apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
     
-    
-    
 Score=playGame()
     
 print(score)
+    
