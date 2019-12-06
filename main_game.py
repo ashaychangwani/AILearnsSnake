@@ -10,7 +10,7 @@ import pygame
 import random
 import time
 
-
+from nn import *
     
 def calcParams(snake_position,apple_position):
     '''
@@ -214,26 +214,12 @@ def move2(snake_position,decision):
         2 means right
     '''
     
-    global button_direction, apple_position,score,crashed
-    '''
+    global button_direction, apple_position,score,crashed,counterSinceApple
+    
     for event in pygame.event.get():
-        if event.type==pygame.KEYDOWN:
-            prev_button=button_direction
-            if event.key == pygame.K_LEFT and prev_button !=1:
-                button_direction=0
-            elif event.key == pygame.K_RIGHT and prev_button !=0:
-                button_direction=1
-            elif event.key == pygame.K_UP and prev_button !=2:
-                button_direction=3
-            elif event.key == pygame.K_DOWN and prev_button !=3:
-                button_direction=2
-            else:
-                button_direction=button_direction
-            break
         if event.type==pygame.QUIT:
             crashed=True
-    '''
-    
+            
     prev_button=button_direction
     if decision == 0:
         if prev_button == 0:
@@ -256,28 +242,6 @@ def move2(snake_position,decision):
         elif prev_button == 3:
             button_direction = 1
 
-
-    if decision [0]==0 and prev_button == 0:
-        button_direction=prev_button
-    elif decision[1]==1 and decision[0]==0:
-        if prev_button == 0:
-            button_direction=2
-        elif prev_button == 1:
-            button_direction=3
-        elif prev_button == 2:
-            button_direction=1
-        elif prev_button == 3:
-            button_direction=0
-    elif decision[0]==1 and decision[1]==1:
-        if prev_button == 0:
-            button_direction=3
-        elif prev_button == 1:
-            button_direction=2
-        elif prev_button == 2:
-            button_direction=0
-        elif prev_button == 3:
-            button_direction=1
-        
     
     snake_head=list(snake_position[0])
     if button_direction==0:
@@ -294,10 +258,8 @@ def move2(snake_position,decision):
     snake_position.insert(0,snake_head)
     if not absorbedApple:
         snake_position.pop()
-        
 
-    
-    #print(snake_position)    
+    counterSinceApple+=1
     collision_with_boundaries(snake_position[0]) 
     collision_with_self(snake_position)
     
@@ -376,12 +338,11 @@ def playGame():
 
 def playGameAI(weights):
     global score,crashed,snake_position,apple_position, display, apple_image, counterSinceApple
-    
-    while crashed is not True and counterSinceApple <= 100:    
+    init()
+    while crashed is not True and counterSinceApple <= 1000:    
         
-        #clock.tick()
-        clock.tick(40)
-        time.sleep(0.2)
+        clock.tick()
+        #clock.tick(40)
         
         param=calcParams(snake_position, apple_position)
         #print(snake_position,'\nFrontBlocked\t',param[0],'\nLeftBlocked\t',param[1],'\nRightBlocked\t',param[2],'\nGoalFront\t',param[3],'\nGoalBack\t',param[4],'\nGoalLeft\t',param[5],'\nGoalRight\t',param[6])
@@ -392,6 +353,7 @@ def playGameAI(weights):
         
         display_snake(snake_position)
         display_apple(display,apple_position,apple_image)
+        
         pygame.display.update()
     
 
@@ -402,43 +364,51 @@ def playGameAI(weights):
     TextRect.center=((display_width/2),(display_height/2))
     display.blit(TextSurf,TextRect)
     pygame.display.update()
-    time.sleep(2)
-    pygame.quit()
+    #time.sleep(2)
+    #pygame.quit()
+    print(score)
     return score
 
-pygame.init()
 
+if __name__ == '__main__':
+    
+    init()    
+    
+    Score=playGameAI(pop[0])
+        
+    print(score)
+
+def init():
+    global crashed,counterSinceApple,button_direction,score,param,snake_position,snake_head,apple_position
+    counterSinceApple=0
+    crashed=False
+    button_direction=0
+    score=0
+    param=[]
+    snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2+10),int(display_height/2)],[int(display_width/2+20),int(display_height/2)],[int(display_width/2+30),int(display_height/2)],[int(display_width/2+40),int(display_height/2)]]
+    snake_head=list(snake_position[0])
+    
+    apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
+    
+    
+
+#pygame.init() #UNCOMMENT THIS TO TRY MANUAL GAME
 display_width=500
 display_height=500
-display= pygame.display.set_mode((display_width,display_height))
+display=pygame.display.set_mode((display_width,display_height))
 window_color=(200,200,200)
 display.fill(window_color)
 pygame.display.update()
 
-counterSinceApple=0
 
-crashed=False
 
 clock=pygame.time.Clock()
 
-button_direction=0
 
 
 red=(255,0,0)
 black=(0,0,0)
 
-score=0
-
-param=[]
 
 apple_image=pygame.image.load('apple.png')
 apple_image=pygame.transform.scale(apple_image,(10,10))
-snake_position=[[int(display_width/2),int(display_height/2)],[int(display_width/2+10),int(display_height/2)],[int(display_width/2+20),int(display_height/2)],[int(display_width/2+30),int(display_height/2)],[int(display_width/2+40),int(display_height/2)]]
-snake_head=list(snake_position[0])
-
-apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
-    
-Score=playGame()
-    
-print(score)
-    

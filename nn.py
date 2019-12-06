@@ -8,6 +8,7 @@ Created on Wed Nov 20 16:19:50 2019
 
 from keras.models import Sequential
 from keras.layers import Dense,Dropout
+import numpy
 
 def createModel(inpDim,weights):
     model=Sequential()

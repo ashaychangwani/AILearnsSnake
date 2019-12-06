@@ -9,6 +9,7 @@ from nn import *
 import numpy as np
 import bisect, collections,random
 from main_game import *
+import pygame
 
 
 '''
@@ -94,31 +95,43 @@ def fitnessFn(chromosome):
 def parentSelection():
     print('Selecting parent')
 
-def elitism(pop,children):
-    children=sorted(pop)[-1*int(initPop/25):]
-    return children
+def elitism(pop,fitness):
+    global initPop
+    return [x for _,x in sorted(zip(fitness,pop))][-1*int(initPop/25):]
     
 
 def offspringGeneration(pop):
-    global children
-    children=elitism(pop,children)
-    fitness=[]
+    global children,maxVal
+    fitness=numpy.arange(initPop)
+    
+    children=elitism(pop,fitness)
+    
+    pygame.init()
+    maxVal=0
     for i in range (initPop):
+        print('checking fitness for pop number',i)
         fitness[i]=fitnessFn(pop[i])
+        if fitness[i]>maxVal:
+            maxVal=fitness[i]
     while len(children)<initPop:
-        children.extend((crossOver(pop[choice(fitness)],pop[choice(fitness)])))
+        t1=choice(fitness)
+        t2=choice(fitness)
+        print('pop_size',len(pop),'t1',t1,'t2',t2)
+        children.extend((crossOver(pop[t1],pop[t2])))
     for i in range (initPop):
         if random.random() >= 0.98:
             children[i]=mutation(children[i])
+    pop=children
+    
 
         
         
     
 children=list()
 createInitPop(initPop)
-fitnessFn(pop[0])
+maxVal=0
+while maxVal < 100:
+    print('maxval',maxVal)
+    offspringGeneration(pop)
 
 
-
-
-#(pop[0],pop[1])=crossOver(pop[0],pop[1])
