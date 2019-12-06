@@ -28,19 +28,27 @@ Outputs:
     GoForward
 '''
 
-initPop=50
+initPop=100
 inpNum=7
 mid=int((inpNum+3)/2)
 
 
 
 def createInitPop(initPop=initPop):
+    global fitness,parentFitnessSum,maxVal
+    fitness=list(numpy.arange(initPop))
     pop=list()
     for _ in range (initPop):
         temp=[]
         temp.append(np.resize(np.random.random(inpNum*mid) * 2 - 1,[inpNum,mid]))
-        temp.append(np.resize(np.random.random(2*mid) * 2 - 1,[mid,3]))
+        temp.append(np.resize(np.random.random(3*mid) * 2 - 1,[mid,3]))
         pop.append(temp)
+    
+    for i in range (initPop):
+        fitness[i]=fitnessFn(pop[i])
+    parentFitnessSum=sum(fitness)
+    maxVal=max(fitness)
+    fitness=[x+min(fitness) for x in fitness]
     return pop
     
     
@@ -96,7 +104,7 @@ def fitnessFn(chromosome):
  
 
 def elitism(pop,fitness):
-    global initPop
+    global initPop,parentFitnessSum
     t = list(zip(fitness,pop))
     #x for _,x in sorted(zip(fitness,pop))]
     t=sorted(t,key=lambda x: x[0])
@@ -104,28 +112,45 @@ def elitism(pop,fitness):
     
 
 def offspringGeneration(pop):
-    global children,maxVal,fitness,children
+    global children,maxVal,fitness,children,parentFitnessSum
+    
     fitness=list(numpy.arange(initPop))
     pygame.init()
     maxVal=0
-    for i in range (initPop):
-        fitness[i]=fitnessFn(pop[i])
-        #print('iteration number',i,fitness[i])
-        if fitness[i]<0:
-            fitness[i]=1
     children=list()
     children.extend(elitism(pop,fitness))
-    #print('len(children)',len(children))
     while len(children)<initPop:
         t1=choice(fitness)
         t2=choice(fitness)
-        #print('pop_size',len(pop),'t1',t1,'t2',t2)
         children.extend((crossOver(pop[t1],pop[t2])))
     for i in range (initPop):
         if random.random() >= 0.98:
             children[i]=mutation(children[i])
+        fitness[i]=fitnessFn(children[i])
+    childFitnessSum=sum(fitness)
     maxVal=max(fitness)
-    return children[:]
+    fitness=[x+min(fitness) for x in fitness]
+    if childFitnessSum>=parentFitnessSum:
+        parentFitnessSum=childFitnessSum
+        return children[:]
+    else:
+        pop2=list()
+        pop2.extend(elitism(children,fitness))
+        for i in range (initPop):
+            fitness[i]=fitnessFn(pop[i])
+        while len(pop2)<initPop:
+            t1=choice(fitness)
+            t2=choice(fitness)
+            pop2.extend((crossOver(pop[t1],pop[t2])))
+        for i in range (initPop):
+            if random.random() >= 0.98:
+                pop2[i]=mutation(pop2[i])
+            fitness[i]=fitnessFn(pop2[i])
+        parentFitnessSum=sum(fitness)
+        maxVal=max(fitness)
+        fitness=[x+min(fitness) for x in fitness]
+        return pop2[:]
+        
     
 
         
@@ -137,3 +162,4 @@ maxVal=0
 while maxVal < 10000:
     pop=offspringGeneration(pop)
     maxPerIteration.append(maxVal)
+    print('Next iteration\n',maxPerIteration)
