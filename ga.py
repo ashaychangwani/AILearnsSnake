@@ -32,15 +32,16 @@ initPop=50
 inpNum=7
 mid=int((inpNum+3)/2)
 
-pop=list()
 
 
 def createInitPop(initPop=initPop):
+    pop=list()
     for _ in range (initPop):
         temp=[]
         temp.append(np.resize(np.random.random(inpNum*mid) * 2 - 1,[inpNum,mid]))
         temp.append(np.resize(np.random.random(2*mid) * 2 - 1,[mid,3]))
         pop.append(temp)
+    return pop
     
     
 def cdf(weights):
@@ -65,7 +66,8 @@ def flatten(weights):
 def crossOver(parent1, parent2):
     flatParent1=flatten(parent1)
     flatParent2=flatten(parent2)
-    crossOverPt=random.randint(0,(inpNum**2 + inpNum*mid + mid*2 + inpNum + mid + 2))
+    crossOverPt=random.randint(0,(inpNum*mid + mid*3))
+    #print('crossOverPoint',crossOverPt)
     temp=flatParent1[:crossOverPt] + flatParent2[crossOverPt:]
     flatParent2=flatParent2[:crossOverPt] + flatParent1[crossOverPt:]
     flatParent1=temp
@@ -77,11 +79,11 @@ def restructure(parent1,flatParent1):
     counter=0
     parent1[0]=np.array(flatParent1[:inpNum*mid]).reshape(inpNum,mid)
     counter=inpNum*mid
-    parent1[1]=np.array(flatParent1[counter : counter+mid*3]).reshape(mid,3)
+    parent1[1]=np.array(flatParent1[counter:]).reshape(mid,3)
     return parent1
 
 def mutation(parent):
-    mutationPt=random.randint(0,(inpNum*mid + mid*3))
+    mutationPt=random.randint(0,(inpNum*mid + mid*3 - 1))
     if (np.random.rand() >= 0.80):
         flatParent=flatten(parent)
         if (flatParent[mutationPt] != 0.0):
@@ -91,47 +93,47 @@ def mutation(parent):
 
 def fitnessFn(chromosome):
     return playGameAI(chromosome)
-
-def parentSelection():
-    print('Selecting parent')
+ 
 
 def elitism(pop,fitness):
     global initPop
-    return [x for _,x in sorted(zip(fitness,pop))][-1*int(initPop/25):]
+    t = list(zip(fitness,pop))
+    #x for _,x in sorted(zip(fitness,pop))]
+    t=sorted(t,key=lambda x: x[0])
+    return [x for _,x in t[-1*int(initPop/25):]]
     
 
 def offspringGeneration(pop):
-    global children,maxVal
-    fitness=numpy.arange(initPop)
-    
-    children=elitism(pop,fitness)
-    
+    global children,maxVal,fitness,children
+    fitness=list(numpy.arange(initPop))
     pygame.init()
     maxVal=0
     for i in range (initPop):
-        print('checking fitness for pop number',i)
         fitness[i]=fitnessFn(pop[i])
-        if fitness[i]>maxVal:
-            maxVal=fitness[i]
+        #print('iteration number',i,fitness[i])
+        if fitness[i]<0:
+            fitness[i]=1
+    children=list()
+    children.extend(elitism(pop,fitness))
+    #print('len(children)',len(children))
     while len(children)<initPop:
         t1=choice(fitness)
         t2=choice(fitness)
-        print('pop_size',len(pop),'t1',t1,'t2',t2)
+        #print('pop_size',len(pop),'t1',t1,'t2',t2)
         children.extend((crossOver(pop[t1],pop[t2])))
     for i in range (initPop):
         if random.random() >= 0.98:
             children[i]=mutation(children[i])
-    pop=children
+    maxVal=max(fitness)
+    return children[:]
     
 
         
-        
-    
-children=list()
-createInitPop(initPop)
+maxPerIteration=list()
+fitness=None
+pop=None
+pop=createInitPop(initPop)
 maxVal=0
-while maxVal < 100:
-    print('maxval',maxVal)
-    offspringGeneration(pop)
-
-
+while maxVal < 10000:
+    pop=offspringGeneration(pop)
+    maxPerIteration.append(maxVal)

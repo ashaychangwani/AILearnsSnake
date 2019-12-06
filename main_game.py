@@ -59,7 +59,7 @@ def calcParams(snake_position,apple_position):
                 elif button_direction==2:
                     frontBlocked=1
 
-    if head[0]==10:
+    if head[0]==0:
         if button_direction==0: #Moving Left    1 means right
             frontBlocked=1
         elif button_direction==2: #Moving Down
@@ -73,7 +73,7 @@ def calcParams(snake_position,apple_position):
             leftBlocked=1
         elif button_direction==3:
             rightBlocked=1
-    if head[1]==10:
+    if head[1]==0:
         if button_direction==0: 
             rightBlocked=1
         elif button_direction==1:
@@ -277,7 +277,7 @@ def display_apple(display,apple_position,apple_image):
 def collision_with_boundaries(snake_head):
     global crashed
     if snake_head[0]>=display_width or snake_head[0]<0 or snake_head[1]>=display_height or snake_head[1]<0:    
-        print('collision_with_boundaries')
+        #print('collision_with_boundaries')
         crashed=True
         return 1
     else:
@@ -286,7 +286,7 @@ def collision_with_boundaries(snake_head):
 def collision_with_self(snake_position):
     global crashed
     if snake_position[0] in snake_position[1:]:
-        print('collision_with_self')
+        #print('collision_with_self')
         crashed=True
         return 1
     else:
@@ -297,7 +297,7 @@ def collision_with_self(snake_position):
 def collision_with_apple(snake_position):
     global apple_position,score,counterSinceApple
     if snake_position[0]==apple_position:
-        score+=1
+        score+=200
         apple_position=[random.randrange(1,49)*10,random.randrange(1,49)*10]
         counterSinceApple=0
         while apple_position in snake_position:
@@ -347,7 +347,10 @@ def playGameAI(weights):
         param=calcParams(snake_position, apple_position)
         #print(snake_position,'\nFrontBlocked\t',param[0],'\nLeftBlocked\t',param[1],'\nRightBlocked\t',param[2],'\nGoalFront\t',param[3],'\nGoalBack\t',param[4],'\nGoalLeft\t',param[5],'\nGoalRight\t',param[6])
     
-    
+        if param[3]==1:
+            score-=1
+        else:
+            score-=2
         move2(snake_position,getOutput(weights,7,param))
         
         
@@ -366,17 +369,10 @@ def playGameAI(weights):
     pygame.display.update()
     #time.sleep(2)
     #pygame.quit()
-    print(score)
+    #print(score)
     return score
 
 
-if __name__ == '__main__':
-    
-    init()    
-    
-    Score=playGameAI(pop[0])
-        
-    print(score)
 
 def init():
     global crashed,counterSinceApple,button_direction,score,param,snake_position,snake_head,apple_position
@@ -389,7 +385,6 @@ def init():
     snake_head=list(snake_position[0])
     
     apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
-    
     
 
 #pygame.init() #UNCOMMENT THIS TO TRY MANUAL GAME
@@ -412,3 +407,11 @@ black=(0,0,0)
 
 apple_image=pygame.image.load('apple.png')
 apple_image=pygame.transform.scale(apple_image,(10,10))
+    
+if __name__ == '__main__':
+    
+    init()    
+    pygame.init()
+    #Score=playGameAI(pop[0])
+    score=playGame() 
+    print(score)
