@@ -3,9 +3,9 @@
 This app was an experimental game used to create a game in Python using PyGame and then teaching an AI to play the game using an **Artificial Neural Network** and optimizing the gameplay using **Genetic Algorithm (GA)**.
 
 There are 3 required to execute the program.
-    *main_game.py
-    *nn.py
-    *ga.py
+* main_game.py
+* nn.py
+* ga.py
 
 1. *main_game.py*
     
@@ -46,16 +46,16 @@ There are 3 required to execute the program.
 
 2. *nn.py*
     This file contains the code that implements the artificial neural network for our game. The architecure of the ANN is as follows: 
-        *Input layer: 7 neurons for 7 parameters
-        *Hidden layer: 5 neurons, activation function=Sigmoid
-        *Output layer: 3 neurons, activation function=Softmax
+   * Input layer: 7 neurons for 7 parameters
+   * Hidden layer: 5 neurons, activation function=Sigmoid
+   * Output layer: 3 neurons, activation function=Softmax
 
 3. *ga.py*
     Finally, this file is what needs to be run in order to visualize the AI training itself on the snake game. It contains the implementation of the Genetic Algorithm that is being used for this game. 
     The specification for the GA are as follows:
-    Initial Population = initPop 
-    Generate Initial Population = createInitPop()
-    Fitness Function = fitnessFn()  #It runs the game with the chromosome as weights to the neural network and the fitness of that gene is the final score.
-    Selection = Takes place using the cumulative distributive function (cdf()) and choice() functions that essentially pick one gene from the pool with probabilitities proportional to their fitness value
-    Crossover = crossOver() 
-    Mutation = mutation() 
+   *    Initial Population = initPop 
+   *    Generate Initial Population = createInitPop()
+   *    Fitness Function = fitnessFn()  #It runs the game with the chromosome as weights to the neural network and the fitness of that gene is the final score.
+   *    Selection = Takes place using the cumulative distributive function (cdf()) and choice() functions that essentially pick one gene from the pool with probabilitities proportional to their fitness value
+   *    Crossover = crossOver() 
+   *    Mutation = mutation() 
