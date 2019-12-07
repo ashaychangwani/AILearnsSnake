@@ -121,7 +121,7 @@ def offspringGeneration(pop):
         #print('pop_size',len(pop),'t1',t1,'t2',t2)
         children.extend((crossOver(pop[t1],pop[t2])))
     for i in range (initPop):
-        if random.random() >= 0.85:
+        if random.random() >= 0.95:
             children[i]=mutation(children[i])
     return children[:]
     
