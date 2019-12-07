@@ -291,7 +291,7 @@ def collision_with_self(snake_position):
     if snake_position[0] in snake_position[1:]:
         #print('collision_with_self')
         crashed=True
-        score-=200
+        score-=150
         if not anyAppleEaten:
             score-=500
         return 1

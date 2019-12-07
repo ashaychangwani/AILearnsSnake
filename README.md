@@ -16,11 +16,11 @@ There are 3 required to execute the program.
     If a user is playing the game, it works based on the inputs from the user using the direction keys on the keyboard. The internal pygame clock is significantly slowed down to allow the user to process and decide the input. If no input is provided, it continues on the same path. If multiple inputs are provided, only the first input in the time frame is considered. 
 
     The scoring of the game is as follows:
-        +500 for eating an apple
+        +250 for eating an apple
         -1 for moving in a direction towards the apple
         -2 for moving in a direction away from the apple
-        -2000 for colliding with the boundaries
-        -1500 for colliding with itself
+        -150 for colliding with the boundaries (Further -500 if no apple was eaten at all)
+        -150 for colliding with itself (Further -500 if no apple was eaten at all)
 
     The final score is displayed at the end of each game. This also serves as the fitness function for our AI which quantifies the fitness of a particular chromosome in a generation of the GA.
 
