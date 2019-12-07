@@ -92,11 +92,9 @@ def restructure(parent1,flatParent1):
 
 def mutation(parent):
     mutationPt=random.randint(0,(inpNum*mid + mid*3 - 1))
-    if (np.random.rand() >= 0.80):
-        flatParent=flatten(parent)
-        if (flatParent[mutationPt] != 0.0):
-            flatParent[mutationPt]=np.random.rand() * 2 - 1
-            parent=restructure(parent,flatParent)
+    flatParent=flatten(parent)
+    flatParent[mutationPt]=np.random.rand() * 2 - 1
+    parent=restructure(parent,flatParent)
     return parent
 
 def fitnessFn(chromosome):
@@ -112,11 +110,17 @@ def elitism(pop,fitness):
     
 
 def offspringGeneration(pop):
-    global children,maxVal,fitness,children,parentFitnessSum
-    
-    fitness=list(numpy.arange(initPop))
+
+    global children,maxVal,fitness,children
+    fitness=list(np.zeros(initPop))
     pygame.init()
     maxVal=0
+    for i in range (initPop):
+        for _ in range(3):
+            fitness[i]+=fitnessFn(pop[i])
+        fitness[i]=int(fitness[i]/3)
+    maxVal=max(fitness)
+    fitness=[int(100*(x-min(fitness))/(max(fitness)-min(fitness))) for x in fitness]
     children=list()
     children.extend(elitism(pop,fitness))
     while len(children)<initPop:
@@ -124,33 +128,10 @@ def offspringGeneration(pop):
         t2=choice(fitness)
         children.extend((crossOver(pop[t1],pop[t2])))
     for i in range (initPop):
-        if random.random() >= 0.98:
+        if random.random() >= 0.85:
             children[i]=mutation(children[i])
-        fitness[i]=fitnessFn(children[i])
-    childFitnessSum=sum(fitness)
-    maxVal=max(fitness)
-    fitness=[x+min(fitness) for x in fitness]
-    if childFitnessSum>=parentFitnessSum:
-        parentFitnessSum=childFitnessSum
-        return children[:]
-    else:
-        pop2=list()
-        pop2.extend(elitism(children,fitness))
-        for i in range (initPop):
-            fitness[i]=fitnessFn(pop[i])
-        while len(pop2)<initPop:
-            t1=choice(fitness)
-            t2=choice(fitness)
-            pop2.extend((crossOver(pop[t1],pop[t2])))
-        for i in range (initPop):
-            if random.random() >= 0.98:
-                pop2[i]=mutation(pop2[i])
-            fitness[i]=fitnessFn(pop2[i])
-        parentFitnessSum=sum(fitness)
-        maxVal=max(fitness)
-        fitness=[x+min(fitness) for x in fitness]
-        return pop2[:]
-        
+
+    return children[:]
     
 
         
@@ -159,7 +140,7 @@ fitness=None
 pop=None
 pop=createInitPop(initPop)
 maxVal=0
-while maxVal < 10000:
+while maxVal < 1000000:
     pop=offspringGeneration(pop)
     maxPerIteration.append(maxVal)
-    print('Next iteration\n',maxPerIteration)
+    print('Next iteration',maxPerIteration)

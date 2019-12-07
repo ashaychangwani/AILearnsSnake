@@ -275,31 +275,36 @@ def display_apple(display,apple_position,apple_image):
     display.blit(apple_image,(apple_position[0],apple_position[1]))
 
 def collision_with_boundaries(snake_head):
-    global crashed
+    global crashed,score,anyAppleEaten
     if snake_head[0]>=display_width or snake_head[0]<0 or snake_head[1]>=display_height or snake_head[1]<0:    
         #print('collision_with_boundaries')
         crashed=True
+        score-=150
+        if not anyAppleEaten:
+            score-=500
         return 1
     else:
         return 0
 
 def collision_with_self(snake_position):
-    global crashed
+    global crashed,score,anyAppleEaten
     if snake_position[0] in snake_position[1:]:
         #print('collision_with_self')
         crashed=True
+        score-=200
+        if not anyAppleEaten:
+            score-=500
         return 1
     else:
         return 0
 
-
-
 def collision_with_apple(snake_position):
-    global apple_position,score,counterSinceApple
+    global apple_position,score,counterSinceApple,anyAppleEaten
     if snake_position[0]==apple_position:
-        score+=200
+        score+=250
         apple_position=[random.randrange(1,49)*10,random.randrange(1,49)*10]
         counterSinceApple=0
+        anyAppleEaten=True
         while apple_position in snake_position:
             apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
         return True
@@ -323,7 +328,6 @@ def playGame():
         display_apple(display,apple_position,apple_image)
         pygame.display.update()
     
-
     
     largeText=pygame.font.Font('freesansbold.ttf',30)
     TextSurf=largeText.render(str("Your final score is "+str(score)),True,black)
@@ -337,7 +341,7 @@ def playGame():
 
 
 def playGameAI(weights):
-    global score,crashed,snake_position,apple_position, display, apple_image, counterSinceApple
+    global score,crashed,snake_position,apple_position, display, apple_image, counterSinceApple,anyAppleEaten
     init()
     while crashed is not True and counterSinceApple <= 1000:    
         
@@ -360,7 +364,8 @@ def playGameAI(weights):
         pygame.display.update()
     
 
-    
+    if not anyAppleEaten:
+        score-=1000
     largeText=pygame.font.Font('freesansbold.ttf',30)
     TextSurf=largeText.render(str("Your final score is "+str(score)),True,black)
     TextRect=TextSurf.get_rect()
@@ -375,9 +380,10 @@ def playGameAI(weights):
 
 
 def init():
-    global crashed,counterSinceApple,button_direction,score,param,snake_position,snake_head,apple_position
+    global crashed,counterSinceApple,button_direction,score,param,snake_position,snake_head,apple_position,anyAppleEaten
     counterSinceApple=0
     crashed=False
+    anyAppleEaten=False
     button_direction=0
     score=0
     param=[]
@@ -387,7 +393,6 @@ def init():
     apple_position=[random.randrange(1,50)*10,random.randrange(1,50)*10]
     
 
-#pygame.init() #UNCOMMENT THIS TO TRY MANUAL GAME
 display_width=500
 display_height=500
 display=pygame.display.set_mode((display_width,display_height))
@@ -412,6 +417,5 @@ if __name__ == '__main__':
     
     init()    
     pygame.init()
-    #Score=playGameAI(pop[0])
     score=playGame() 
     print(score)
