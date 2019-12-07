@@ -84,11 +84,9 @@ def restructure(parent1,flatParent1):
 
 def mutation(parent):
     mutationPt=random.randint(0,(inpNum*mid + mid*3 - 1))
-    if (np.random.rand() >= 0.80):
-        flatParent=flatten(parent)
-        if (flatParent[mutationPt] != 0.0):
-            flatParent[mutationPt]=np.random.rand() * 2 - 1
-            parent=restructure(parent,flatParent)
+    flatParent=flatten(parent)
+    flatParent[mutationPt]=np.random.rand() * 2 - 1
+    parent=restructure(parent,flatParent)
     return parent
 
 def fitnessFn(chromosome):
@@ -105,14 +103,15 @@ def elitism(pop,fitness):
 
 def offspringGeneration(pop):
     global children,maxVal,fitness,children
-    fitness=list(numpy.arange(initPop))
+    fitness=list(numpy.zeros(initPop))
     pygame.init()
     maxVal=0
     for i in range (initPop):
-        fitness[i]=fitnessFn(pop[i])
-        #print('iteration number',i,fitness[i])
-        if fitness[i]<0:
-            fitness[i]=1
+        for _ in range(3):
+            fitness[i]+=fitnessFn(pop[i])
+        fitness[i]=int(fitness[i]/3)
+    maxVal=max(fitness)
+    fitness=[x+abs(min(fitness)) for x in fitness]
     children=list()
     children.extend(elitism(pop,fitness))
     #print('len(children)',len(children))
@@ -122,9 +121,8 @@ def offspringGeneration(pop):
         #print('pop_size',len(pop),'t1',t1,'t2',t2)
         children.extend((crossOver(pop[t1],pop[t2])))
     for i in range (initPop):
-        if random.random() >= 0.98:
+        if random.random() >= 0.90:
             children[i]=mutation(children[i])
-    maxVal=max(fitness)
     return children[:]
     
 
@@ -137,3 +135,4 @@ maxVal=0
 while maxVal < 10000:
     pop=offspringGeneration(pop)
     maxPerIteration.append(maxVal)
+    print('Next iteration',maxPerIteration)
