@@ -103,7 +103,7 @@ def elitism(pop,fitness):
 
 def offspringGeneration(pop):
     global children,maxVal,fitness,children
-    fitness=list(numpy.zeros(initPop))
+    fitness=list(np.zeros(initPop))
     pygame.init()
     maxVal=0
     for i in range (initPop):
@@ -111,7 +111,7 @@ def offspringGeneration(pop):
             fitness[i]+=fitnessFn(pop[i])
         fitness[i]=int(fitness[i]/3)
     maxVal=max(fitness)
-    fitness=[x+abs(min(fitness)) for x in fitness]
+    fitness=[int(100*(x-min(fitness))/(max(fitness)-min(fitness))) for x in fitness]
     children=list()
     children.extend(elitism(pop,fitness))
     #print('len(children)',len(children))
@@ -121,7 +121,7 @@ def offspringGeneration(pop):
         #print('pop_size',len(pop),'t1',t1,'t2',t2)
         children.extend((crossOver(pop[t1],pop[t2])))
     for i in range (initPop):
-        if random.random() >= 0.90:
+        if random.random() >= 0.85:
             children[i]=mutation(children[i])
     return children[:]
     
@@ -132,7 +132,7 @@ fitness=None
 pop=None
 pop=createInitPop(initPop)
 maxVal=0
-while maxVal < 10000:
+while maxVal < 1000000:
     pop=offspringGeneration(pop)
     maxPerIteration.append(maxVal)
     print('Next iteration',maxPerIteration)

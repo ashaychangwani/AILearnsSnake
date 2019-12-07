@@ -6,24 +6,12 @@ Created on Wed Nov 20 16:19:50 2019
 @author: ashay
 """
 
-from keras.models import Sequential
-from keras.layers import Dense,Dropout
-import numpy
-
-def createModel(inpDim,weights):
-    model=Sequential()
-    model.add(Dense(inpDim,input_dim=inpDim,kernel_initializer='random_normal',activation='sigmoid'))
-    model.add(Dense(int((inpDim+2)/2),kernel_initializer='random_normal',activation='sigmoid'))
-    model.add(Dense(2,kernel_initializer='random_normal',activation='softmax'))
-    model.compile(loss="categorical_crossentropy",optimizer='RMSProp',metrics=['accuracy'])
-    model.set_weights(weights)
-    return model
 
 
 import numpy as np
 
 def sigmoid(inpt):
-    return 1.0 / (1.0 + numpy.exp(-1 * inpt))
+    return 1.0 / (1.0 + np.exp(-1 * inpt))
 
 def softmax(x): 
     e_x = np.exp(x - np.max(x))     
