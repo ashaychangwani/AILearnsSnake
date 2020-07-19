@@ -9,8 +9,224 @@ Created on Mon Nov  4 23:42:07 2019
 import pygame
 import random
 import time
+import math
+
+from math import degrees, atan2
 
 from nn import *
+    
+inpNum=26
+
+
+
+def distanceBetweenPoints(x1,y1,x2,y2):
+    '''
+    Euclidean Distance Between Two Points
+    '''
+    dist = math.sqrt((x2 - x1)**2 + (y2 - y1)**2)  
+    return dist  
+    
+    
+def bodyCollision(snake_head, snake_position, deltaX, deltaY):
+    minDist=10000000
+    for pos in snake_position[1:]:
+        x=pos[0]-snake_head[0]
+        y=pos[1]-snake_head[1]
+        #print(pos,x,y)
+        
+        if (deltaX==0 or (x % deltaX==0 and x/deltaX>0)) and (deltaY==0 or (y % deltaY == 0 and y/deltaY>0)):
+            minDist=min(minDist,distanceBetweenPoints(pos[0],pos[1],snake_head[0],snake_head[1]))
+                
+        #print(minDist)
+        '''
+        
+        needs work because should have different results because imagine that delta=10 and diff=-100
+    
+        '''
+    if(minDist==10000000):
+        return -1
+    return minDist/display_width
+
+
+def AngleBtw2Points(pointA, pointB):
+      changeInX = pointB[0] - pointA[0]
+      changeInY = pointB[1] - pointA[1]
+      return degrees(atan2(changeInY,changeInX))/180 #remove degrees if you want your answer in radians
+
+
+def appleCollision(snake_head, apple_position, deltaX, deltaY):
+    x=apple_position[0]-snake_head[0]
+    y=apple_position[1]-snake_head[1]
+    
+    if (deltaX==0 or (x % deltaX==0 and x/deltaX>0)) and (deltaY==0 or (y % deltaY == 0 and y/deltaY>0)):
+        return distanceBetweenPoints(snake_head[0], snake_head[1], apple_position[0], apple_position[1])/(diag)
+    
+    
+    return -1;
+        
+    
+    
+    '''
+    
+    currently just checking +10 -10 etc. 
+    
+    have to edit to ensure to check in that direction, so have to use division and check if division = delta
+    
+    '''
+    
+    
+
+
+
+def calcNewParams(snake_position, apple_position):
+    global crashed
+    '''
+    
+
+    Parameters
+    ----------
+    snake_position : TYPE
+        DESCRIPTION.
+    apple_position : TYPE
+        DESCRIPTION.
+
+
+
+    Calculates
+    ----------
+    
+    Distance from Top 
+    Distance from 45 deg wall
+    Distance from Right Wall
+    Distance from bottom right wall
+    Distance from bottom wall
+    Distance from bottom left wall
+    Distance from left wall
+    Distance from top left wall
+    
+    8 more distances from self in that direction
+    
+    Distance from apple
+    Direction of apple
+    
+    
+    Total 18 inputs
+    
+    
+        actually total is 26
+    
+    Returns
+    -------
+    parameters
+
+    '''
+    
+    param=[]
+    
+    snake_head=snake_position[0]
+    x=snake_head[0]
+    y=snake_head[1]
+    
+    '''
+    
+    range 0 to 490
+    
+    '''
+    
+    
+    param.append(y)
+    
+    param.append(min(distanceBetweenPoints(x, y, x+y, 0), distanceBetweenPoints(x, y, display_width-10, y - (display_width-10-x))))     #Find which wall it hits first, top wall or right wall
+    
+    param.append(display_width-10-x)
+    
+    param.append(min(distanceBetweenPoints(x, y, display_width-10, y+(display_width-10-x)),distanceBetweenPoints(x, y, x+(display_width-10-y), display_width-10)))
+    
+    param.append(display_width-10-y)
+    
+    param.append(min(distanceBetweenPoints(x, y, 0, x+y), distanceBetweenPoints(x, y, x-(display_width-10-y), display_width-10)))
+    
+    param.append(x)
+    
+    param.append(min(distanceBetweenPoints(x, y, x-y, 0),distanceBetweenPoints(x, y, 0, y-x)))
+    
+    param=[(i/(diag/2))-1 for i in param]
+    
+    '''
+    
+    Now to add the 8 body collision ones
+    
+    range -1 to 1 (-1 for no collision, 0 to 1 to for other ranges, by dividing by 500)
+    
+    '''
+    
+    
+    param.append(bodyCollision(snake_head, snake_position, 0,-10))
+    
+    param.append(bodyCollision(snake_head, snake_position, 10,-10))
+    
+    param.append(bodyCollision(snake_head, snake_position, 10,0))
+    
+    param.append(bodyCollision(snake_head, snake_position, 10,10))
+    
+    param.append(bodyCollision(snake_head, snake_position, 0,10))
+    
+    param.append(bodyCollision(snake_head, snake_position, -10,10))
+    
+    param.append(bodyCollision(snake_head, snake_position, -10,0))
+    
+    param.append(bodyCollision(snake_head, snake_position, -10,-10))
+    
+    
+    '''
+    Now adding the 8 apple distance ones
+    
+    range -1 to 1
+    '''
+    
+    
+    param.append(appleCollision(snake_head, apple_position, 0,-10))
+    
+    param.append(appleCollision(snake_head, apple_position, 10,-10))
+    
+    param.append(appleCollision(snake_head, apple_position, 10,0))
+    
+    param.append(appleCollision(snake_head, apple_position, 10,10))
+    
+    param.append(appleCollision(snake_head, apple_position, 0,10))
+    
+    param.append(appleCollision(snake_head, apple_position, -10,10))
+    
+    param.append(appleCollision(snake_head, apple_position, -10,0))
+    
+    param.append(appleCollision(snake_head, apple_position, -10,-10))
+    
+    
+    
+    
+    
+    '''
+    Now adding the euclidean distance, and then the angle
+    
+    scale -1 to 1
+    '''
+
+    param.append((distanceBetweenPoints(snake_head[0], snake_head[1], apple_position[0],apple_position[1])/(diag/2))-1) 
+    
+    param.append(AngleBtw2Points(snake_head, apple_position))
+    
+    
+    
+    
+    for i in param:
+        if i>1:
+            print(param)
+        elif i<-1:
+            print(param)
+    
+    return param
+    
+    
     
 def calcParams(snake_position,apple_position):
     '''
@@ -145,7 +361,7 @@ def calcParams(snake_position,apple_position):
     return param
 
 
-def move(snake_position):
+def move(snake_position):       #Move for User Program
     
     '''
     
@@ -173,6 +389,8 @@ def move(snake_position):
             break
         if event.type==pygame.QUIT:
             crashed=True
+            #pygame.display.quit()
+            pygame.quit()
     snake_head=list(snake_position[0])
     if button_direction==0:
         snake_head[0]-=10
@@ -184,6 +402,10 @@ def move(snake_position):
         snake_head[1]-=10
     else:
         pass
+    
+    collision_with_boundaries(snake_position[0]) 
+    collision_with_self(snake_position)
+    
     absorbedApple=collision_with_apple(snake_position)
     snake_position.insert(0,snake_head)
     if not absorbedApple:
@@ -192,11 +414,9 @@ def move(snake_position):
 
     
     #print(snake_position)    
-    collision_with_boundaries(snake_position[0]) 
-    collision_with_self(snake_position)
     
     
-def move2(snake_position,decision):
+def move2(snake_position,decision):     ##fuction for moving snake according to AI prediction
          
     '''
     
@@ -219,9 +439,15 @@ def move2(snake_position,decision):
     for event in pygame.event.get():
         if event.type==pygame.QUIT:
             crashed=True
+            #pygame.display.quit()
+            pygame.quit()
             
     prev_button=button_direction
-    if decision == 0:
+    
+    
+    
+    
+    if decision == 0:           #This entire block is to account for relative movement WRT head direction
         if prev_button == 0:
             button_direction = 2
         elif prev_button == 1:
@@ -241,7 +467,7 @@ def move2(snake_position,decision):
             button_direction = 0
         elif prev_button == 3:
             button_direction = 1
-
+    
     
     snake_head=list(snake_position[0])
     if button_direction==0:
@@ -258,7 +484,8 @@ def move2(snake_position,decision):
     snake_position.insert(0,snake_head)
     if not absorbedApple:
         snake_position.pop()
-
+    
+    
     counterSinceApple+=1
     collision_with_boundaries(snake_position[0]) 
     collision_with_self(snake_position)
@@ -270,7 +497,7 @@ def display_snake(snake_position):
     display.fill(window_color)
     for position in snake_position:
         pygame.draw.rect(display,red,pygame.Rect(position[0],position[1],10,10))
-        
+
 def display_apple(display,apple_position,apple_image):
     display.blit(apple_image,(apple_position[0],apple_position[1]))
 
@@ -301,7 +528,7 @@ def collision_with_self(snake_position):
 def collision_with_apple(snake_position):
     global apple_position,score,counterSinceApple,anyAppleEaten
     if snake_position[0]==apple_position:
-        score+=250
+        score+=500
         apple_position=[random.randrange(1,49)*10,random.randrange(1,49)*10]
         counterSinceApple=0
         anyAppleEaten=True
@@ -315,17 +542,17 @@ def playGame():
     
     while crashed is not True:    
         
+        display_snake(snake_position)
+        display_apple(display,apple_position,apple_image)
         #clock.tick()
         clock.tick(40)
         time.sleep(0.2)
+        
+        #time.sleep(4)
         move(snake_position)
-        
-        param=calcParams(snake_position, apple_position)
-        
+        param=calcNewParams(snake_position, apple_position)
         #print(snake_position,'\nFrontBlocked\t',param[0],'\nLeftBlocked\t',param[1],'\nRightBlocked\t',param[2],'\nGoalFront\t',param[3],'\nGoalBack\t',param[4],'\nGoalLeft\t',param[5],'\nGoalRight\t',param[6])
     
-        display_snake(snake_position)
-        display_apple(display,apple_position,apple_image)
         pygame.display.update()
     
     
@@ -343,29 +570,35 @@ def playGame():
 def playGameAI(weights):
     global score,crashed,snake_position,apple_position, display, apple_image, counterSinceApple,anyAppleEaten
     init()
+    oldDistance=diag
     while crashed is not True and counterSinceApple <= 1000:    
         
         clock.tick()
         #clock.tick(40)
         
-        param=calcParams(snake_position, apple_position)
-        #print(snake_position,'\nFrontBlocked\t',param[0],'\nLeftBlocked\t',param[1],'\nRightBlocked\t',param[2],'\nGoalFront\t',param[3],'\nGoalBack\t',param[4],'\nGoalLeft\t',param[5],'\nGoalRight\t',param[6])
-    
+        param=calcNewParams(snake_position, apple_position)
+        
+        
+        '''
         if param[3]==1:
             score-=1
         else:
             score-=2
-        move2(snake_position,getOutput(weights,7,param))
+        '''
+        if(oldDistance>param[24]):
+            score+=2
+        else:
+            score-=1
+        oldDistance=param[24]
+        move2(snake_position,getOutput(weights,inpNum,param))
         
         
         display_snake(snake_position)
         display_apple(display,apple_position,apple_image)
-        
+    
         pygame.display.update()
     
 
-    if not anyAppleEaten:
-        score-=1000
     largeText=pygame.font.Font('freesansbold.ttf',30)
     TextSurf=largeText.render(str("Your final score is "+str(score)),True,black)
     TextRect=TextSurf.get_rect()
@@ -401,6 +634,7 @@ display.fill(window_color)
 pygame.display.update()
 
 
+diag=math.sqrt(2)* display_width
 
 clock=pygame.time.Clock()
 
