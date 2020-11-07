@@ -1,1 +1,6 @@
 .vscode/launch.json
+__pycache__/boundary.cpython-39.pyc
+__pycache__/boundary2.cpython-39.pyc
+__pycache__/neuralnet.cpython-39.pyc
+__pycache__/snake.cpython-39.pyc
+.DS_Store

@@ -54,10 +54,10 @@ class Playground:
             if i == len(snake_position):
                 found = True
                 
-        self.apple_position = (x, y)
-        return self.apple_position
+        self.food = (x, y)
+        return self.food
 
     def draw_apple(self, playground, color):
-        pygame.draw.rect(playground, color, (self.apple_position[0], self.apple_position[1], self.block_size, self.block_size))
+        pygame.draw.rect(playground, color, (self.food[0], self.food[1], self.block_size, self.block_size))
         return playground 
 

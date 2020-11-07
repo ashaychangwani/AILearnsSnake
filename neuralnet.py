@@ -119,9 +119,6 @@ class NeuralNet:
         input.extend(self.look(x, y, dir_x, dir_y, fx, fy, snake))
         return input
 
-    def setNextFood(self, food):
-        self.next_food = food
-
     def decision(self, x, y, snake_position, direction):
         fx, fy = self.next_food
         input = self.make_input(x, y, fx, fy, snake_position, direction)
@@ -136,14 +133,21 @@ class NeuralNet:
         result = np.argmax(self.outputs[-1]) + 1
         return result
 
+    
 
+    # set the next food variable
+    def setNextFood(self, food):
+        self.next_food = food
+
+    # sigmoid activation functions
     def sigmoid(self, mat):
         return 1.0 / (1.0 + np.exp(-mat))
 
+    # relu activation function
     def relu(self, mat):
         return mat * (mat > 0)
 
+    # softmax function
     def softmax(self, mat):
         mat = mat - np.max(mat)
         return np.exp(mat) / np.sum(np.exp(mat), axis=1)
-    
