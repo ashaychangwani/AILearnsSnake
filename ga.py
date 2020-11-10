@@ -8,11 +8,11 @@ from params import *
 
 class GeneticAlgo:
 
-    def __init__(self, width, height, unit, NN_shape, init_NN, population_size, no_of_generations,
+    def __init__(self, display_width, display_height, unit, NN_shape, init_NN, population_size, no_of_generations,
                  per_of_best_old_pop, per_of_worst_old_pop, mutation_percent, mutation_intensity):
 
-        self.width = width
-        self.height = height
+        self.display_width = display_width
+        self.display_height = display_height
         self.unit = unit
         self.NN_shape = NN_shape
         self.init_NN = init_NN
@@ -96,7 +96,7 @@ class GeneticAlgo:
     def cloneOfParents(self, parents):
         snakes = []
         for parent in parents:
-            babySnake = snake(self.width, self.height,
+            babySnake = snake(self.display_width, self.display_height,
                                     self.NN_shape, self.unit,
                                     False)
             babySnake.neuralnet.theta = parent.neuralnet.theta
@@ -125,7 +125,7 @@ class GeneticAlgo:
         return parents
 
     def crossOver(self, parent1, parent2):
-        child = snake(self.width, self.height,
+        child = snake(self.display_width, self.display_height,
                             self.NN_shape, self.unit)
         for i in range(len(parent1.neuralnet.theta)):
             for j in range(parent1.neuralnet.theta[i].shape[0]):
@@ -163,9 +163,9 @@ class GeneticAlgo:
         return children
 
     def runner(self):
-        snakes = [snake(self.width, self.height, self.NN_shape,
+        snakes = [snake(self.display_width, self.display_height, self.NN_shape,
                               self.unit) for _ in range(self.population_size)]
-        environment = Environment(self.height, self.width, self.unit)
+        environment = Environment(self.display_height, self.display_width, self.unit)
         top_snakes = []
         averages = []
         percentile = []
@@ -195,7 +195,7 @@ class GeneticAlgo:
 
 
 if __name__ == '__main__':
-    ga = GeneticAlgo(width, height, unit, NN_shape, init_NN, population_size, no_of_generations,
+    ga = GeneticAlgo(display_width, display_height, unit, NN_shape, init_NN, population_size, no_of_generations,
                      per_of_best_old_pop, per_of_worst_old_pop, mutation_percent, mutation_intensity)
 
     ga.runner()

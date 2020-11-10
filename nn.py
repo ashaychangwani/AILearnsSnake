@@ -3,9 +3,9 @@ import random
 
 
 class NeuralNet:
-    def __init__(self, NN_shape, width, height, unit, init_NN=True):
-        self.width = width
-        self.height = height
+    def __init__(self, NN_shape, display_width, display_height, unit, init_NN=True):
+        self.display_width = display_width
+        self.display_height = display_height
         self.unit = unit
         self.apple_position = ()
         self.theta = []
@@ -82,19 +82,19 @@ class NeuralNet:
         
 
         input.extend(self.sense_in_direction(x, y, self.unit, -self.unit, foodX, foodY, snake_position))
-        input.extend([self.unit/self.checkForZero(min(y - self.unit, self.width - self.unit - x))])
+        input.extend([self.unit/self.checkForZero(min(y - self.unit, self.display_width - self.unit - x))])
 
         input.extend(self.sense_in_direction(x, y, self.unit, 0, foodX, foodY, snake_position))
-        input.extend([self.unit/self.checkForZero((self.width - self.unit - x))])
+        input.extend([self.unit/self.checkForZero((self.display_width - self.unit - x))])
 
         input.extend(self.sense_in_direction(x, y, self.unit,self.unit, foodX, foodY, snake_position))
-        input.extend([self.unit/self.checkForZero(min(self.height - self.unit -y, self.width - self.unit - x))])
+        input.extend([self.unit/self.checkForZero(min(self.display_height - self.unit -y, self.display_width - self.unit - x))])
 
         input.extend(self.sense_in_direction(x, y, 0, self.unit, foodX, foodY, snake_position))
-        input.extend([self.unit/self.checkForZero((self.height - self.unit -y))])
+        input.extend([self.unit/self.checkForZero((self.display_height - self.unit -y))])
 
         input.extend(self.sense_in_direction(x, y, -self.unit,self.unit, foodX, foodY, snake_position))
-        input.extend([self.unit/self.checkForZero(min(x - self.unit, self.height - self.unit -y))])
+        input.extend([self.unit/self.checkForZero(min(x - self.unit, self.display_height - self.unit -y))])
 
         input.extend(self.sense_in_direction(x, y, -self.unit, 0, foodX, foodY, snake_position))
         input.extend([self.unit/self.checkForZero((x - self.unit))])

@@ -15,15 +15,15 @@ file.close()
 pygame.init()
 pygame.font.init()
 myfont = pygame.font.SysFont('Bitstream Vera Serif', 20)
-screen = pygame.display.set_mode((width, height))
-environment = Environment(height, width, unit)
+screen = pygame.display.set_mode((display_width, display_height))
+environment = Environment(display_height, display_width, unit)
 for i in range(len(snake_generations)):
     snakes = snake_generations[i]
     prev_score = -1
     for j in range(len(snakes)):
         saved_snake = snakes[j]
         pygame.display.set_caption('Generation : '+str(i+1)+'\t\tSnake Num: '+str(j+1)+'\t\tPrevious Score: '+str(prev_score))
-        t_snake = snake(width, height, NN_shape, unit, False)
+        t_snake = snake(display_width, display_height, NN_shape, unit, False)
         t_snake.neuralnet.theta = saved_snake.neuralnet.theta
         t_snake.neuralnet.bias = saved_snake.neuralnet.bias
         t_snake.neuralnet.setNextFood(
