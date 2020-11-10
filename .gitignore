@@ -4,3 +4,7 @@ __pycache__/boundary2.cpython-39.pyc
 __pycache__/neuralnet.cpython-39.pyc
 __pycache__/snake.cpython-39.pyc
 .DS_Store
+__pycache__/main_game.cpython-39.pyc
+__pycache__/nn.cpython-39.pyc
+__pycache__/**
+scratchpad.py
