@@ -9,7 +9,23 @@ from params import *
 class GeneticAlgo:
 
     def __init__(self, display_width, display_height, unit, NN_shape, init_NN, population_size, no_of_generations,
-                 per_of_best_old_pop, per_of_worst_old_pop, mutation_percent, mutation_intensity):
+                 percentage_best_performers, percentage_worst_performers, mutation_percent, mutation_intensity):
+        """
+        Initializes an object of class GeneticAlgo with the parameters of the game. 
+
+        Args:
+            display_width (int): The width of the frame in pixels
+            display_height (int): The height of the frame in pixels
+            unit (int): The size of each block of the frame in pixels
+            NN_shape (list): The shape of the NeuralNetwork responsible for converting the input to outputs
+            init_NN (bool): Boolean decribing whether the neural network should be initialized with random wieghts
+            population_size (int): Number of objects in each generation
+            no_of_generations (int): Number of generations to run the neural net
+            percentage_best_performers (int): Percentage of top performers of the previous generation to be used for elitism
+            percentage_worst_performers (int): Percentage of worst performers of the previous generation to be used for elitism
+            mutation_percent (int): Percentage chance of mutation of each member in weight matrix
+            mutation_intensity (int): Intensity of mutation (magnitude of change in the weights)
+        """
 
         self.display_width = display_width
         self.display_height = display_height
@@ -18,12 +34,22 @@ class GeneticAlgo:
         self.init_NN = init_NN
         self.population_size = population_size
         self.no_of_generations = no_of_generations
-        self.per_of_best_old_pop = per_of_best_old_pop
-        self.per_of_worst_old_pop = per_of_worst_old_pop
+        self.percentage_best_performers = percentage_best_performers
+        self.percentage_worst_performers = percentage_worst_performers
         self.mutation_percent = mutation_percent
         self.mutation_intensity = mutation_intensity
 
     def run(self, snakes, environment):
+        """Runs the snake for a single generation.
+
+        Args:
+            snakes (list of type snake): List of all the snakes of the current generation to be run.
+            environment (object): Object of type environment
+
+        Returns:
+            average of all scores
+            90th percentile scores
+        """
 
         i = 1
         scores = []
@@ -76,6 +102,11 @@ class GeneticAlgo:
         return np.average(scores), np.percentile(scores, 90)
 
     def print_top(self, snakes):
+        """Prints information (number, score, and reason for death) about the top snakes in each generation
+
+        Args:
+            snakes (list): List of objects (of type snake) of the top for current generation
+        """
         i = 0
         for snake in snakes:
             i += 1
@@ -89,11 +120,25 @@ class GeneticAlgo:
                 print('crashed body')
 
     def save(self, snakes, filename):
+        """Saves the top snakes from every generation into a pickle file to be loaded in the gui.py file
+
+        Args:
+            snakes (list): List of top snakes of every generation
+            filename (str): String representing filename of the output file
+        """
         f = open(filename, "wb")
         pickle.dump(snakes, f)
         f.close()
 
     def cloneOfParents(self, parents):
+        """Creates clones of parents selected for elitism to be added to the next generation
+
+        Args:
+            parents (list): List of parents selected for elitism
+
+        Returns:
+            [list]: List of the clones of the input snakes
+        """
         snakes = []
         for parent in parents:
             babySnake = snake(self.display_width, self.display_height,
@@ -105,17 +150,33 @@ class GeneticAlgo:
         return snakes
 
     def elitism(self, snakes):
+        """Selects top performing parents for elitism (along with a few bottom performers for variance)
+
+        Args:
+            snakes (list): List of all snakes in the generation sorted by their scores
+
+        Returns:
+            [list]: List of parents that have been selected for elitism and cloned for future generation
+        """
         parents = []
         num_top = int(self.population_size *
-                              self.per_of_best_old_pop / 100)
+                              self.percentage_best_performers / 100)
         num_bottom = int(self.population_size *
-                                 self.per_of_worst_old_pop / 100)
+                                 self.percentage_worst_performers / 100)
 
         parents.extend(self.cloneOfParents(snakes[:num_top]))
         parents.extend(self.cloneOfParents(snakes[-num_bottom:]))
         return parents, num_top, num_bottom
     
     def create_new_pop(self, snakes):
+        """Function to create the new generation using the parents from the previous generation
+
+        Args:
+            snakes (list): List of all snakes from the previous generation
+
+        Returns:
+            [list]: List of snakes that represent the next generation
+        """
         parents, num_top, num_bottom = self.elitism(snakes)
         children = self.offspringGeneration(
             parents, self.population_size - num_top - num_bottom)
@@ -125,6 +186,15 @@ class GeneticAlgo:
         return parents
 
     def crossOver(self, parent1, parent2):
+        """Performs crossover function of genetic algos
+
+        Args:
+            parent1 (snake): Input parent 1
+            parent2 (snake): Input parent 2
+
+        Returns:
+            [snake]: Returns the child born from crossover of the two input parents
+        """
         child = snake(self.display_width, self.display_height,
                             self.NN_shape, self.unit)
         for i in range(len(parent1.neuralnet.theta)):
@@ -143,6 +213,17 @@ class GeneticAlgo:
         return child
 
     def offspringGeneration(self, parents, no_of_children):
+        """Generates the rest of the population after elitism is done by perfoming crossover
+           on the parents until the members of the next generation is equal to the specified 
+           population
+
+        Args:
+            parents (list): List of snakes that have been selected via elitism
+            no_of_children (int): Number of snakes that are to be generated via crossover
+
+        Returns:
+            [list]: List of all the snakes of the next generation produced via crossover
+        """
         all_children = []
         for _ in range(no_of_children):
             parent1 = random.choice(parents)
@@ -153,6 +234,14 @@ class GeneticAlgo:
         return all_children
 
     def mutate(self, children):
+        """Performs mutation task of Genetic Algos on the snakes in order to increase variety
+
+        Args:
+            children (list): List of all snakes in current generation (produced via elitism + crossover)
+
+        Returns:
+            [list]: List of all snakes in current generation after mutation is complete
+        """
         for child in children:
             for W in child.neuralnet.theta:
                 for _ in range(int(W.shape[0] * W.shape[1] * self.mutation_percent/100)):
@@ -163,6 +252,12 @@ class GeneticAlgo:
         return children
 
     def runner(self):
+        """
+        Main function of the GeneticAlgo Class that evaluates the result for each generation of
+        and populates the next generation along.
+        Prints the graph of the average and 90th percentile score for each generation to identify
+        ideal early stopping point
+        """
         snakes = [snake(self.display_width, self.display_height, self.NN_shape,
                               self.unit) for _ in range(self.population_size)]
         environment = Environment(self.display_height, self.display_width, self.unit)
@@ -189,6 +284,12 @@ class GeneticAlgo:
         plt.show()
 
     def progress(self, percent, length):
+        """Creates a progress bar to check progress of current generation
+
+        Args:
+            percent (int): Percentage that is complete
+            length (int): Length of the progress bar
+        """
         hashes = round(percent*length)
         print('\r', '*'*hashes + '_'*(length - hashes),
               '[{:.2%}]'.format(percent), end='')
@@ -196,6 +297,6 @@ class GeneticAlgo:
 
 if __name__ == '__main__':
     ga = GeneticAlgo(display_width, display_height, unit, NN_shape, init_NN, population_size, no_of_generations,
-                     per_of_best_old_pop, per_of_worst_old_pop, mutation_percent, mutation_intensity)
+                     percentage_best_performers, percentage_worst_performers, mutation_percent, mutation_intensity)
 
     ga.runner()
