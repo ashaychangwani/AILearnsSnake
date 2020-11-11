@@ -2,60 +2,59 @@
 
 This app was an experimental game used to create a game in Python using PyGame and then teaching an AI to play the game using an **Artificial Neural Network** and optimizing the gameplay using **Genetic Algorithm (GA)**.
 
-There are 3 required to execute the program.
-* main_game.py
+The snakes look in 8 intercardinal directions, and in each direction, check for 3 things:
+    1. Whether the apple exists in the chosen direction
+    2. Whether a part of the snake's body lies in the chosen    direction (and if yes, how far is it)
+    3. How far the closest boundary is, along the chosen direction.
+
+These 3 inputs multiplied by the 8 directions give us the 24 inputs that will be fed to the neural network. 
+
+The neural network returns 3 kinds of output: 
+    * 1: Move forward in the previous direction
+    * 2: Turn left
+    * 3: Turn right
+Please note that these directions are relative to the current direction of the snake.
+
+There is fairly detailed documentation for each function in each of the classes. Please feel free to go through them and raise a new pull request to add features or edits that you want to edit.
+
+There will also be Medium posts regarding the project, the process followed to build it and the intuition behind it will be explained in depth in the blogs. I'll make sure to update the links into the README.md file as soon as the blogs are published. 
+
+There are 4 files required to train the network.
+* snake.py
+* params.py
 * nn.py
 * ga.py
 
-1. *main_game.py*
-    
-    This file is what the entire snake game in Python is based out on. It writes the rules for the game, the score calculation for any given game, and displays the same to the user. 
+1. *snake.py*
 
-    It can be played in two ways: by a user or by an AI. The two methods that facilitate it are playGame and playGameAI respectively.
+    This file contains two classes: snake and environment. 
 
-    If a user is playing the game, it works based on the inputs from the user using the direction keys on the keyboard. The internal pygame clock is significantly slowed down to allow the user to process and decide the input. If no input is provided, it continues on the same path. If multiple inputs are provided, only the first input in the time frame is considered. 
+    The snake class is responsible for storage of all data relevant to the particular snake like the coordinates of it's head, the rest of it's body as well as results like score, time since it last ate an apple, etc.
 
-    The scoring of the game is as follows:
-        +250 for eating an apple
-        -1 for moving in a direction towards the apple
-        -2 for moving in a direction away from the apple
-        -150 for colliding with the boundaries (Further -500 if no apple was eaten at all)
-        -150 for colliding with itself (Further -500 if no apple was eaten at all)
-
-    The final score is displayed at the end of each game. This also serves as the fitness function for our AI which quantifies the fitness of a particular chromosome in a generation of the GA.
-
-        *calcParams
-        This function is responsible for calculating the binary parameters that will be used as inputs by the neural network in order to determine what the ideal output is. The parameters are as follows: 
-            1. FrontBlocked: Is the cell in front of the snake blocked? Blockage can be due to the snakes own body or the boundary.
-            2. LeftBlocked: Is there a blockage to the immediate left of the snake head?
-            3. RightBlocked: Is there a blockage to the immediate left of the snake head?
-            4. GoalLeft: Is the goal towards the left of the snake head? 
-            5. GoalRight: Is the goal towards the right of the snake head?
-            6. GoalFront: Is the goal in front of the snake head?
-            7. GoalBack: Is the goal behind the snake head? 
-        These parameters change depending on the direction of movement of the snake.
-
-        *move
-        This function takes inputs from the user to facilitate the playGame function, and updates the game depending on the users input and checks for the multiple condititions at every iteration.
-
-        *move2
-        This function is what allows the AI to play the game. It gives the parameters as inputs to the neural network and gets the output in the range [0-2], where 0 means moving left, 1 means continuining straight, 2 means moving right.
-
-    The other functions simply check the rules of the game to ensure it is being played correctly. 
-
+    The Environment class contains information regarding the pygame frame, and is responsible for drawing the apple, snake and boundary onto the pygame frame. It also contains the game specific variables like the position of the apple at that instant, as well as generating a new apple position if the snake eats the previous apple. 
 
 2. *nn.py*
-    This file contains the code that implements the artificial neural network for our game. The architecure of the ANN is as follows: 
-   * Input layer: 7 neurons for 7 parameters
-   * Hidden layer: 5 neurons, activation function=Sigmoid
-   * Output layer: 3 neurons, activation function=Softmax
 
-3. *ga.py*
-    Finally, this file is what needs to be run in order to visualize the AI training itself on the snake game. It contains the implementation of the Genetic Algorithm that is being used for this game. 
-    The specification for the GA are as follows:
-   *    Initial Population = initPop 
-   *    Generate Initial Population = createInitPop()
-   *    Fitness Function = fitnessFn()  #It runs the game with the chromosome as weights to the neural network and the fitness of that gene is the final score.
-   *    Selection = Takes place using the cumulative distributive function (cdf()) and choice() functions that essentially pick one gene from the pool with probabilitities proportional to their fitness value
-   *    Crossover = crossOver() 
-   *    Mutation = mutation() 
+    The nn.py file contains the NeuralNet class and contains the code for the neural network. The architecure of the neural network is as follows: 
+
+    24 neurons in the input layer
+        ReLU activation
+    16 neurons in the hidden layer
+        Softmax activation
+    3 neurons in the output layer
+
+    The 24 input and 3 outputs are explained above. The class is also responsible for generating the 24 inputs by taking information about the snake and it's surroundings and converting it into inputs that will be accepted by the neural network.
+
+3. *params.py*
+
+    This file simply initializes some variables that are shared between different classes. 
+
+4. *ga.py*
+
+    This is the class that needs to be run in order to train the neural network and run the Genetic Algo. The GeneticAlgo class is initialized by passing all the parameters about the display, the snake, the neural network and hyperparameters for the genetic algorithm (like percentage for elitism, mutation, crossover, etc). 
+
+    The class starts with executing the "runner" function. It iterates through the number of generations to train for, and logs infromation about each generation-- like the average score, the 90th percentile score, etc.
+
+    Once it has executed for all generations, it takes the top n snakes of each generation and saves them in a file so that they can be visualized later. 
+
+    The rest of the GA functions have been documented in depth within the ga.py file, feel free to go through them for any other clarification. 
