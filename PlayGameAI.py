@@ -6,7 +6,7 @@ import time
 import copy
 from params import *
 
-file = open('saved/test.pickle', "rb") 
+file = open('saved/model.pickle', "rb") 
 snake_generations = pickle.load(file)
 file.close()
 
