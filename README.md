@@ -2,6 +2,9 @@
 
 This app was an experimental game used to create a game in Python using PyGame and then teaching an AI to play the game using an **Artificial Neural Network** and optimizing the gameplay using **Genetic Algorithm (GA)**.
 
+# Demo
+![Demo](images/demo.gif)
+___
 The snakes look in 8 intercardinal directions, and in each direction, check for 3 things:
     1. Whether the apple exists in the chosen direction
     2. Whether a part of the snake's body lies in the chosen    direction (and if yes, how far is it)
